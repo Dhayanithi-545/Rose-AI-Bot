@@ -6,7 +6,7 @@ You can either use it directly in Telegram or run it on your own server.
 ---
 
 ## 🔗 Access on Telegram
-- Bot username: [@airosebot](https://t.me/airosebot)  
+- Bot username: [@airosebot](https://web.telegram.org/k/#@airosebot)  
 
 ---
 
