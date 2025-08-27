@@ -9,6 +9,12 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 user_modes = {}
 
+# ✅ Keywords to detect "developer/owner" questions
+DEV_KEYWORDS = [
+    "developer", "owner", "creator", "made you", "who built you", 
+    "who created you", "your boss", "who coded you", "who is your maker"
+]
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "Hello, I'm Rose AI 🌹\n\nAvailable modes:\n"
@@ -40,8 +46,23 @@ async def normal(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    text = update.message.text
+    text = update.message.text.lower()  # lowercase for easy matching
 
+    # ✅ Custom override for developer/owner questions
+    if any(keyword in text for keyword in DEV_KEYWORDS):
+        dev_reply = (
+            "I was developed by **Dhayanithi** with love ❤️\n\n"
+            "🔗 Connect with him here:\n"
+            "- [LinkedIn](https://www.linkedin.com/in/dhayanithi-anandan-69199a322/)\n"
+            "- [GitHub](https://github.com/Dhayanithi545)\n"
+            "- [Instagram](https://www.instagram.com/dhaya_545/)\n"
+            "- [Portfolio](https://dhayanithi.vercel.app)\n"
+            "- [Twitter/X](https://x.com/Dhayanithi545)"
+        )
+        await update.message.reply_text(dev_reply, disable_web_page_preview=True, parse_mode="Markdown")
+        return  # stop here, don’t call AI
+
+    # Normal AI flow
     mode = user_modes.get(user_id, "normal")
 
     if mode == 'ratchasi':
@@ -57,8 +78,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(reply)
 
+
 def main():
-    
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
@@ -72,5 +93,7 @@ def main():
 
     app.run_polling()
 
+
 if __name__ == "__main__":
     main()
+#Rose Bot
