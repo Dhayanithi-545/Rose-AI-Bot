@@ -68,7 +68,7 @@ async def subha_mode(user_message):
         top_p=0.95,
         max_tokens=300
     )
-
+#S
 async def straightforward_mode(user_message):
     return ask_openrouter(
         "You are StraightForwardBot. Give straightforward, short, no-nonsense answers. No extra details.\n\n"
