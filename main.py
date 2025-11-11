@@ -126,9 +126,13 @@ def main():
     # ✅ Set webhook
     async def setup():
         await app.bot.delete_webhook()
-        await app.bot.set_webhook(webhook_url)
+        await app.bot.set_webhook(WEBHOOK_URL)
 
-    asyncio.get_event_loop().run_until_complete(setup())
+    # Create and set event loop
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(setup())
+    loop.close()
 
     # ✅ Start Flask server (Render needs this)
     flask_app.run(host="0.0.0.0", port=PORT)
