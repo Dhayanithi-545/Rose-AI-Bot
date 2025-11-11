@@ -3,27 +3,12 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from dotenv import load_dotenv
 import modes
-from flask import Flask, request
-import asyncio
 
-# Load ENV
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-# Render webhook config
-PORT = int(os.environ.get("PORT", 5000))
-WEBHOOK_URL = f"https://rose-ai-bot.onrender.com/webhook"
-
-
-# Flask server
-flask_app = Flask(__name__)
-
-# global application instance
-app = None
-
 user_modes = {}
 
-# ✅ Keywords to detect "developer/owner" questions
 DEV_KEYWORDS = [
     "developer", "owner", "creator", "made you", "who built you",
     "who created you", "your boss", "who coded you", "who is your maker"
@@ -60,7 +45,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     text = update.message.text.lower()
 
-    # Check for developer/owner questions
     if any(keyword in text for keyword in DEV_KEYWORDS):
         dev_reply = (
             "I was developed by **Dhaya** with love ❤️\n\n"
@@ -73,8 +57,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         await update.message.reply_text(dev_reply, disable_web_page_preview=True, parse_mode="Markdown")
         return
-        
-    # Check for Subha-related questions
+
     if any(keyword in text for keyword in ["subha", "who is subha", "tell me about subha", "subha poem", "about subha"]):
         subha_poem = (
             "She is a distant star\n"
@@ -102,42 +85,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(reply)
 
-# ✅ Flask route for Telegram webhook
-@flask_app.post("/webhook")
-async def webhook_handler():
-    data = request.get_json()
-    update = Update.de_json(data, app.bot)
-    await app.initialize()
-    await app.process_update(update)
-    return "OK", 200
-
 def main():
-    global app
-
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
-    # Handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("ratchasi", ratchasi))
     app.add_handler(CommandHandler("emoji", emoji))
     app.add_handler(CommandHandler("subha", subha))
     app.add_handler(CommandHandler("straightforward", straightforward))
     app.add_handler(CommandHandler("normal", normal))
+
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    # ✅ Set webhook
-    async def setup():
-        await app.bot.delete_webhook()
-        await app.bot.set_webhook(WEBHOOK_URL)
-
-    # Create and set event loop
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(setup())
-    loop.close()
-
-    # ✅ Start Flask server (Render needs this)
-    flask_app.run(host="0.0.0.0", port=PORT)
+    app.run_polling()
 
 if __name__ == "__main__":
     main()
