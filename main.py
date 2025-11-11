@@ -1,4 +1,6 @@
 import os
+import threading
+from flask import Flask
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from dotenv import load_dotenv
@@ -6,6 +8,14 @@ import modes
 
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+# Flask app for GET route (to satisfy Render)
+flask_app = Flask(__name__)
+
+@flask_app.get("/")
+def home():
+    return "Bot is running ✅", 200
+
 
 user_modes = {}
 
@@ -85,19 +95,29 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(reply)
 
-def main():
+
+# ✅ Function to run bot polling in a new thread
+def run_bot():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
+    # Add handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("ratchasi", ratchasi))
     app.add_handler(CommandHandler("emoji", emoji))
     app.add_handler(CommandHandler("subha", subha))
     app.add_handler(CommandHandler("straightforward", straightforward))
     app.add_handler(CommandHandler("normal", normal))
-
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     app.run_polling()
+
+def main():
+    # Start bot in separate thread
+    threading.Thread(target=run_bot, daemon=True).start()
+
+    # Start flask server for GET route
+    flask_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
 
 if __name__ == "__main__":
     main()
