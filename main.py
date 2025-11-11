@@ -21,7 +21,7 @@ user_modes = {}
 
 DEV_KEYWORDS = [
     "developer", "owner", "creator", "made you", "who built you",
-    "who created you", "your boss", "who coded you", "who is your maker"
+    "who created you", "your boss", "who coded you", "who is your maker", "dhaya", "dhayanithi", "who built you"
 ]
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
