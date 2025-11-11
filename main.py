@@ -12,8 +12,8 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 # Render webhook config
 PORT = int(os.environ.get("PORT", 5000))
-RENDER_URL = os.environ.get("RENDER_EXTERNAL_URL")  # Render auto sets this
-webhook_url = f"https://{RENDER_URL}/webhook"
+WEBHOOK_URL = f"https://rose-ai-bot.onrender.com/webhook"
+
 
 # Flask server
 flask_app = Flask(__name__)
