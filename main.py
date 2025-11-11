@@ -98,9 +98,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ✅ Function to run bot polling in a new thread
 def run_bot():
+    import asyncio
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
-    # Add handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("ratchasi", ratchasi))
     app.add_handler(CommandHandler("emoji", emoji))
@@ -109,15 +113,17 @@ def run_bot():
     app.add_handler(CommandHandler("normal", normal))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    app.run_polling()
+    loop.run_until_complete(app.initialize())
+    loop.run_until_complete(app.start())
+    loop.run_until_complete(app.updater.start_polling())
+    loop.run_forever()
+
 
 def main():
-    # Start bot in separate thread
-    threading.Thread(target=run_bot, daemon=True).start()
+    bot_thread = threading.Thread(target=run_bot)
+    bot_thread.start()
 
-    # Start flask server for GET route
     flask_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-
 
 if __name__ == "__main__":
     main()
