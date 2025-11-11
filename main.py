@@ -104,9 +104,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ✅ Flask route for Telegram webhook
 @flask_app.post("/webhook")
-def webhook_handler():
+async def webhook_handler():
     data = request.get_json()
-    asyncio.get_event_loop().create_task(app.update_queue.put(data))
+    update = Update.de_json(data, app.bot)
+    await app.initialize()
+    await app.process_update(update)
     return "OK", 200
 
 def main():
